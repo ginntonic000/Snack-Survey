@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Us Create Your Next Favorite Snack!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     EDIT ME: colors & fonts live here as CSS variables.
+     ============================================================ */
+  :root{
+    --cream:#FFF6E9;
+    --paper:#FFFDF9;
+    --ink:#2B1810;
+    --ink-soft:#6B5545;
+    --orange:#FF6B35;
+    --orange-dark:#E4531F;
+    --cheese:#FFC94A;
+    --green:#5B8C5A;
+    --berry:#E8465F;
+    --line:#EDE0CC;
+    --shadow: 0 10px 30px rgba(43,24,16,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 90% -10%, #FFE7C2 0%, transparent 60%),
+      radial-gradient(1000px 500px at -10% 110%, #FFD9DF 0%, transparent 55%),
+      var(--cream);
+    color:var(--ink);
+    font-family:'Karla', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    line-height:1.15;
+    margin:0;
+  }
+  .app{
+    width:100%;
+    max-width:640px;
+    position:relative;
+  }
+
+  /* ---------- progress ---------- */
+  .progress-wrap{
+    margin-bottom:22px;
+    display:none;
+  }
+  .progress-wrap.show{display:block;}
+  .progress-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+    font-size:13px;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .progress-mood{
+    color:var(--orange-dark);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+  }
+  .bag{
+    height:14px;
+    border-radius:999px;
+    background:var(--paper);
+    border:2px solid var(--line);
+    overflow:visible;
+    position:relative;
+  }
+  .bag-fill{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--cheese), var(--orange));
+    width:0%;
+    transition:width .5s cubic-bezier(.22,.9,.3,1.3);
+    position:relative;
+  }
+  .bag-crumb{
+    position:absolute;
+    top:50%;
+    right:-13px;
+    transform:translateY(-50%);
+    font-size:20px;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.2));
+    transition:right .5s cubic-bezier(.22,.9,.3,1.3);
+  }
+
+  /* ---------- card ---------- */
+  .stage{
+    position:relative;
+    min-height:420px;
+  }
+  .card{
+    position:absolute;
+    inset:0;
+    background:var(--paper);
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--line);
+    padding:40px 36px;
+    display:flex;
+    flex-direction:column;
+    opacity:0;
+    transform:translateX(24px) scale(.98);
+    pointer-events:none;
+    transition:opacity .38s ease, transform .38s cubic-bezier(.2,.7,.3,1);
+  }
+  .card.active{
+    opacity:1;
+    transform:translateX(0) scale(1);
+    pointer-events:auto;
+    position:relative;
+  }
+  .card.leaving{
+    opacity:0;
+    transform:translateX(-24px) scale(.98);
+  }
+  .eyebrow{
+    font-weight:700;
+    color:var(--orange-dark);
+    letter-spacing:.02em;
+    font-size:13px;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .q-emoji{font-size:38px; margin-bottom:6px; display:block;}
+  .q-title{font-size:26px; margin-bottom:8px;}
+  .q-sub{color:var(--ink-soft); font-size:15px; margin-bottom:22px; line-height:1.5;}
+  .q-hint{color:var(--ink-soft); font-size:13px; margin-top:8px;}
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-height:44vh;
+    overflow-y:auto;
+    padding-right:4px;
+    margin-bottom:6px;
+  }
+  .opt{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    border:2px solid var(--line);
+    background:var(--cream);
+    border-radius:14px;
+    cursor:pointer;
+    font-family:'Karla',sans-serif;
+    font-size:15.5px;
+    font-weight:600;
+    color:var(--ink);
+    text-align:left;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .opt:hover{border-color:var(--orange); transform:translateY(-1px);}
+  .opt .key{
+    flex:0 0 auto;
+    width:26px; height:26px;
+    border-radius:8px;
+    border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:var(--ink-soft);
+    background:var(--paper);
+  }
+  .opt.multi .key{border-radius:7px;}
+  .opt.single .key{border-radius:999px;}
+  .opt.rank .key{border-radius:999px; font-family:'Baloo 2',sans-serif; font-size:13px;}
+  .opt.selected{
+    border-color:var(--orange);
+    background:#FFEFE3;
+  }
+  .opt.selected .key{
+    background:var(--orange);
+    border-color:var(--orange);
+    color:white;
+  }
+  .other-input{
+    margin-top:6px;
+    width:100%;
+    padding:12px 14px;
+    border-radius:12px;
+    border:2px solid var(--line);
+    font-family:'Karla',sans-serif;
+    font-size:15px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+
+  .scale-row{display:flex; gap:8px; margin-bottom:6px;}
+  .scale-btn{
+    flex:1;
+    aspect-ratio:1/1;
+    border-radius:14px;
+    border:2px solid var(--line);
+    background:var(--cream);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .scale-btn:hover{transform:translateY(-2px); border-color:var(--orange);}
+  .scale-btn.selected{background:var(--orange); border-color:var(--orange); color:#fff;}
+  .scale-labels{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); font-weight:600;}
+
+  textarea, input[type=text], input[type=email], input[type=number]{
+    width:100%;
+    padding:14px 16px;
+    border-radius:14px;
+    border:2px solid var(--line);
+    font-family:'Karla',sans-serif;
+    font-size:16px;
+    background:var(--cream);
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  textarea:focus, input:focus{border-color:var(--orange);}
+  textarea{min-height:110px; resize:vertical; font-family:'Karla',sans-serif;}
+
+  .spacer{flex:1;}
+  .nav-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:22px;
+    gap:10px;
+  }
+  .btn{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    border:none;
+    border-radius:999px;
+    padding:13px 26px;
+    cursor:pointer;
+    transition:transform .12s, box-shadow .12s, background .15s;
+  }
+  .btn-primary{
+    background:var(--orange);
+    color:#fff;
+    box-shadow:0 6px 0 var(--orange-dark);
+  }
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-primary:active{transform:translateY(3px); box-shadow:0 2px 0 var(--orange-dark);}
+  .btn-primary:disabled{background:#E7D9C6; box-shadow:0 6px 0 #D8C7AF; cursor:not-allowed; color:#fff;}
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink-soft);
+    padding:13px 14px;
+  }
+  .btn-ghost:hover{color:var(--ink);}
+
+  /* ---------- intro / section / outro ---------- */
+  .center-card{
+    text-align:center;
+    align-items:center;
+    justify-content:center;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#FFEFE3;
+    color:var(--orange-dark);
+    font-weight:700;
+    font-size:13px;
+    padding:6px 14px;
+    border-radius:999px;
+    margin-bottom:16px;
+  }
+  .hero-emoji{font-size:56px; margin-bottom:8px;}
+  .intro-title{font-size:32px; margin-bottom:12px;}
+  .intro-sub{color:var(--ink-soft); font-size:16px; margin-bottom:26px; max-width:440px;}
+  .meta-row{display:flex; gap:18px; color:var(--ink-soft); font-size:13px; font-weight:600; margin-bottom:26px;}
+
+  .section-num{font-size:14px; font-weight:700; color:var(--orange-dark); margin-bottom:6px;}
+  .persona-card{
+    background:linear-gradient(135deg, #FFEFE3, #FFF6E9);
+    border:2px dashed var(--orange);
+    border-radius:18px;
+    padding:20px;
+    margin:18px 0;
+  }
+  .persona-name{font-family:'Baloo 2'; font-size:22px; color:var(--orange-dark); margin-bottom:4px;}
+
+  /* ---------- admin ---------- */
+  .admin-link{
+    text-align:center;
+    margin-top:16px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  .admin-panel{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:26px;
+    box-shadow:var(--shadow);
+  }
+  .admin-panel table{width:100%; border-collapse:collapse; font-size:13px; margin-top:14px;}
+  .admin-panel th,.admin-panel td{border-bottom:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top;}
+  .admin-panel th{color:var(--ink-soft); font-size:12px; text-transform:uppercase;}
+  .admin-actions{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+  .stat-row{display:flex; gap:16px; flex-wrap:wrap; margin-top:10px;}
+  .stat-pill{background:var(--cream); border:1px solid var(--line); border-radius:12px; padding:10px 16px; font-size:13px;}
+  .stat-pill b{font-family:'Baloo 2'; font-size:18px; display:block; color:var(--orange-dark);}
+
+  canvas#confetti{position:fixed; inset:0; pointer-events:none; z-index:50;}
+
+  @media (max-width:480px){
+    .card{padding:28px 22px;}
+    .intro-title{font-size:26px;}
+    .q-title{font-size:22px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .bag-fill, .bag-crumb, .btn{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-top">
+      <span id="progressLabel">Question 1 of 20</span>
+      <span class="progress-mood" id="progressMood">Just getting started 🍿</span>
+    </div>
+    <div class="bag"><div class="bag-fill" id="bagFill"><span class="bag-crumb" id="bagCrumb">🍟</span></div></div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="admin-link" id="adminLink">For the survey creator: view responses</div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+/* ============================================================
+   EDIT ME: this is the whole survey. Change titles, options,
+   emojis, or add/remove questions — the app rebuilds itself
+   from this array. Question "id" is the storage key, so keep
+   ids unique and don't reuse an id for a different question.
+
+   Types available:
+     "intro"    – welcome screen (only the first entry)
+     "section"  – a section divider/title screen
+     "single"   – pick one option (auto-advances)
+     "multi"    – pick one or more, optional max (set maxSelect)
+     "scale"    – 1–5 rating with end labels
+     "text"     – one line text input
+     "email"    – one line email input
+     "number"   – one line number input
+     "longtext" – multi-line text
+   Add { other:true } to the end of an "options" array to offer
+   an "Other, please specify" choice with a free-text field.
+   ============================================================ */
+const SURVEY_TITLE = "Help Us Create Your Next Favorite Snack! 🍪";
+const SURVEY_INTRO = "We're dreaming up a new packaged snack and we want YOUR taste buds on the team. No wrong answers here — just tell us what you actually crave.";
+
+const QUESTIONS = [
+  { id:"_intro", type:"intro" },
+
+  { id:"_s1", type:"section", section:"Section 1 of 3", title:"Snack Talk 🍿",
+    sub:"Let's start easy — a few questions about your everyday snacking habits." },
+
+  { id:"email", type:"email", emoji:"📬", title:"First — mind sharing your email?",
+    sub:"Just so we can say thanks properly. No spam, ever.", placeholder:"you@example.com" },
+
+  { id:"freq", type:"single", emoji:"🕐", title:"How often do you eat packaged snacks?",
+    options:["Every day","A few times a week","About once a week","Less often"] },
+
+  { id:"snacks_bought", type:"rank", maxSelect:3, emoji:"🛒", title:"Which packaged snacks do you buy most often?",
+    sub:"Choose up to 3 — tap them in order, your #1 pick first.",
+    options:["Potato chips","Corn / extruded snacks","Popcorn","Crackers / biscuits","Nuts","Granola / healthy snacks","Dried fruit"], other:true },
+
+  { id:"factors", type:"rank", maxSelect:3, emoji:"⭐", title:"When choosing a snack, which factors are most important to you?",
+    sub:"Choose up to 3 — tap them in order, most important first.",
+    options:["Good taste","Crunchy texture","Affordable price","Simple, recognizable ingredients","Lower sugar","Higher protein","Natural ingredients","Convenient packaging","Trusted brand"], other:true },
+
+  { id:"choose_style", type:"single", emoji:"🧭", title:"How do you usually choose your snacks?",
+    options:[
+      "Taste and price first",
+      "Tasty, with a healthier option if possible",
+      "I usually choose healthier snacks",
+      "I pay close attention to the ingredients"
+    ] },
+
+  { id:"_s2", type:"section", section:"Section 2 of 3", title:"Healthier Snack Discovery 🌿",
+    sub:"Let's find out what \"healthier\" really means to you." },
+
+  { id:"healthier_interest", type:"single", emoji:"🌱", title:"Are you looking for a healthier snack?",
+    options:["Yes","No"] },
+
+  { id:"healthier_meaning", type:"rank", maxSelect:3, emoji:"🍃", title:"What does a \"healthier snack\" mean to you?",
+    sub:"Choose up to 3 (ranking) — tap them in order, most important first.",
+    options:["Lower sugar","Lower calories","Higher protein","Less oil / fat","Natural ingredients","Fewer artificial ingredients","Higher fiber","More whole-food ingredients","Smaller portions"], other:true,
+    skipIf: (a)=> a['healthier_interest'] === 'No' },
+
+  { id:"healthier_reason", type:"multi", maxSelect:3, emoji:"🤔", title:"What would make you choose a healthier snack over a regular snack?",
+    sub:"Choose up to 3.",
+    options:["It tastes just as good","Better ingredients","Lower calories","Lower sugar","Higher protein","Affordable price","Trusted brand","Easy to find","Attractive packaging"],
+    skipIf: (a)=> a['healthier_interest'] === 'No' },
+
+  { id:"spend_amount", type:"single", emoji:"💰", title:"How much do you usually spend on one individual pack of snacks?",
+    options:["Under Rp10,000","Rp10,000–15,000","Rp15,001–20,000","Rp20,001–30,000","Above Rp30,000"] },
+
+  { id:"pay_more", type:"single", emoji:"💸", title:"Would you be willing to pay more for a healthier snack if it still tastes great?",
+    options:["No, I prefer the same price","Yes, up to around 10% more","Yes, up to around 20% more","Yes, more than 20% if I really like it"] },
+
+  { id:"_s3", type:"section", section:"Section 3 of 3", title:"Last but not least, about you 🙋",
+    sub:"Almost done — just a bit of context so we can understand the full picture." },
+
+  { id:"age", type:"single", emoji:"🎂", title:"What's your age range?",
+    options:["18–24","25–34","35–44","45–54","55+"] },
+
+  { id:"gender", type:"single", emoji:"🧑", title:"How do you identify?",
+    options:["Female","Male","Prefer not to say"], other:true },
+
+  { id:"where_buy", type:"multi", emoji:"🏪", title:"Where do you usually buy packaged snacks?",
+    options:["Minimarket","Offline supermarket","Traditional store / warung","E-commerce / marketplace","Quick-commerce"], other:true },
+
+  { id:"city", type:"single", emoji:"📍", title:"Which city or area are you in?",
+    options:["Jakarta","Surabaya","Bandung"], other:true },
+
+  { id:"_outro", type:"outro" }
+];
+
+/* Snack persona reveal, based on the "choose_style" answer above.
+   Edit freely — this is just a fun payoff at the end. */
+const PERSONAS = {
+  "Taste and price first": { name:"The Classic Cruncher 🍟", blurb:"You know what you like and you're not here to overthink it. Taste and value win, every time." },
+  "Tasty, with a healthier option if possible": { name:"The Balanced Snacker 🥨", blurb:"You want it all — a little better-for-you, but never at the cost of actually enjoying it." },
+  "I usually choose healthier snacks": { name:"The Mindful Muncher 🌾", blurb:"You read past the front of the pack. Nutrition and quality genuinely shape what ends up in your cart." },
+  "I pay close attention to the ingredients": { name:"The Ingredient Detective 🔍", blurb:"You flip the bag over first. If you can't pronounce it, it's probably not coming home with you." }
+};
+
+/* ============================================================
+   App logic — you shouldn't need to touch anything below this
+   line unless you're changing how the survey behaves.
+   ============================================================ */
+const stage = document.getElementById('stage');
+const progressWrap = document.getElementById('progressWrap');
+const progressLabel = document.getElementById('progressLabel');
+const progressMood = document.getElementById('progressMood');
+const bagFill = document.getElementById('bagFill');
+const bagCrumb = document.getElementById('bagCrumb');
+const adminLink = document.getElementById('adminLink');
+
+const answers = {};
+const otherAnswers = {};
+let current = 0;
+let inAdmin = false;
+
+const questionSteps = QUESTIONS.filter(q => !['intro','section','outro'].includes(q.type));
+const totalQuestions = questionSteps.length;
+
+const MOODS = ["Just getting started 🍿","You're on a roll 🎉","Halfway through the bag 😋","Final stretch! 🏁"];
+const CRUMBS = ["🍟","🥨","🍿","🌰","🍪"];
+
+function questionIndexOf(id){ return questionSteps.findIndex(q => q.id === id); }
+
+function render(){
+  stage.innerHTML = '';
+  const q = QUESTIONS[current];
+  const card = document.createElement('div');
+  card.className = 'card active';
+  if (['intro','section','outro'].includes(q.type)) card.classList.add('center-card');
+  card.appendChild(buildCardContent(q));
+  stage.appendChild(card);
+  stage.style.minHeight = card.scrollHeight + 'px';
+
+  const showProgress = !['intro','section','outro'].includes(q.type);
+  progressWrap.classList.toggle('show', showProgress);
+  if (showProgress){
+    const idx = questionIndexOf(q.id);
+    const pct = Math.round(((idx+1)/totalQuestions)*100);
+    progressLabel.textContent = `Question ${idx+1} of ${totalQuestions}`;
+    progressMood.textContent = MOODS[Math.min(3, Math.floor((idx)/totalQuestions*4))];
+    bagFill.style.width = pct + '%';
+    bagCrumb.textContent = CRUMBS[idx % CRUMBS.length];
+  }
+}
+
+function buildCardContent(q){
+  const wrap = document.createElement('div');
+  wrap.style.display='flex';
+  wrap.style.flexDirection='column';
+  wrap.style.height='100%';
+
+  if (q.type === 'intro'){
+    wrap.innerHTML = `
+      <div class="badge">🍭 ~4 minute taste test</div>
+      <div class="hero-emoji">🍪</div>
+      <h1 class="intro-title">${SURVEY_TITLE}</h1>
+      <p class="intro-sub">${SURVEY_INTRO}</p>
+      <div class="meta-row"><span>⏱️ 3 min</span><span>🙈 No wrong answers</span><span>🍪 Just your honest cravings</span></div>
+      <button class="btn btn-primary" id="startBtn">Let's snack →</button>`;
+    setTimeout(()=> document.getElementById('startBtn').onclick = ()=> go(1), 0);
+    return wrap;
+  }
+
+  if (q.type === 'section'){
+    wrap.innerHTML = `
+      <div class="section-num">${q.section}</div>
+      <h2 class="intro-title" style="font-size:28px">${q.title}</h2>
+      <p class="intro-sub">${q.sub||''}</p>
+      <button class="btn btn-primary" id="secBtn">Continue →</button>`;
+    setTimeout(()=> document.getElementById('secBtn').onclick = ()=> go(1), 0);
+    return wrap;
+  }
+
+  if (q.type === 'outro'){
+    const persona = PERSONAS[answers['choose_style']];
+    wrap.innerHTML = `
+      <div class="hero-emoji">🎉</div>
+      <h1 class="intro-title">You're officially a snack hero!</h1>
+      <p class="intro-sub">Thanks for helping us build something worth crunching on. Here's your snack persona:</p>
+      ${persona ? `<div class="persona-card"><div class="persona-name">${persona.name}</div><div>${persona.blurb}</div></div>` : ''}
+      <button class="btn btn-primary" id="doneBtn">Done</button>`;
+    setTimeout(()=>{
+      document.getElementById('doneBtn').onclick = ()=> { window.location.reload(); };
+      submitResponse();
+      burstConfetti();
+    }, 0);
+    return wrap;
+  }
+
+  // Question header
+  const header = document.createElement('div');
+  header.innerHTML = `
+    <span class="q-emoji">${q.emoji||'🙂'}</span>
+    <h2 class="q-title">${q.title}</h2>
+    ${q.sub ? `<p class="q-sub">${q.sub}</p>` : ''}`;
+  wrap.appendChild(header);
+
+  const body = document.createElement('div');
+  body.style.flex='1';
+
+  if (q.type === 'single' || q.type === 'multi' || q.type === 'rank'){
+    const isRank = q.type === 'rank';
+    const isMulti = q.type === 'multi' || isRank;
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    const allOptions = q.other ? [...q.options, '__OTHER__'] : q.options;
+    allOptions.forEach((opt, i)=>{
+      const isOther = opt === '__OTHER__';
+      const label = isOther ? 'Other, please specify' : opt;
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className = `opt ${isRank?'rank':(isMulti?'multi':'single')}`;
+      const arr = answers[q.id]||[];
+      const rankPos = isRank ? arr.indexOf(opt) : -1;
+      const selected = isMulti ? arr.includes(opt) : answers[q.id] === opt;
+      if (selected) btn.classList.add('selected');
+      let keyContent = '';
+      if (isRank) keyContent = rankPos>-1 ? (rankPos+1) : '';
+      else if (isMulti) keyContent = selected ? '✓' : '';
+      else keyContent = selected ? '●' : '';
+      btn.innerHTML = `<span class="key">${keyContent}</span><span>${label}</span>`;
+      btn.onclick = ()=> handleOption(q, opt, isMulti, isOther, isRank);
+      opts.appendChild(btn);
+    });
+    body.appendChild(opts);
+
+    if (q.other && (answers[q.id]==='__OTHER__' || (Array.isArray(answers[q.id]) && answers[q.id].includes('__OTHER__')))){
+      const inp = document.createElement('input');
+      inp.type='text'; inp.className='other-input'; inp.placeholder='Type your answer...';
+      inp.value = otherAnswers[q.id] || '';
+      inp.oninput = (e)=> otherAnswers[q.id] = e.target.value;
+      body.appendChild(inp);
+    }
+    if (isRank){
+      const arr = answers[q.id]||[];
+      const summary = document.createElement('div');
+      summary.className='q-hint';
+      if (arr.length){
+        const labels = arr.map((o,i)=> `${i+1}. ${o==='__OTHER__' ? (otherAnswers[q.id]||'Other') : o}`);
+        summary.textContent = `Your ranking so far — ${labels.join('  ')}`;
+      } else {
+        summary.textContent = `Tap up to ${q.maxSelect} in order, most preferred first.`;
+      }
+      body.appendChild(summary);
+    } else if (q.maxSelect) {
+      const hint = document.createElement('div');
+      hint.className='q-hint';
+      hint.textContent = `You can pick up to ${q.maxSelect}.`;
+      body.appendChild(hint);
+    }
+  }
+
+  if (q.type === 'scale'){
+    const row = document.createElement('div');
+    row.className='scale-row';
+    for(let i=1;i<=5;i++){
+      const b = document.createElement('button');
+      b.type='button'; b.className='scale-btn'; b.textContent=i;
+      if (answers[q.id]===i) b.classList.add('selected');
+      b.onclick = ()=>{ answers[q.id]=i; render(); setTimeout(()=>go(1), 350); };
+      row.appendChild(b);
+    }
+    body.appendChild(row);
+    const labels = document.createElement('div');
+    labels.className='scale-labels';
+    labels.innerHTML = `<span>${q.lowLabel||''}</span><span>${q.highLabel||''}</span>`;
+    body.appendChild(labels);
+  }
+
+  if (['text','email','number','longtext'].includes(q.type)){
+    const field = document.createElement(q.type==='longtext' ? 'textarea' : 'input');
+    if (q.type!=='longtext') field.type = q.type==='email'?'email':(q.type==='number'?'number':'text');
+    field.placeholder = q.placeholder || '';
+    field.value = answers[q.id] || '';
+    field.oninput = (e)=>{ answers[q.id]=e.target.value; updateNextState(); };
+    field.onkeydown = (e)=>{ if(e.key==='Enter' && q.type!=='longtext'){ go(1); } };
+    body.appendChild(field);
+    if (q.suffix){
+      const s = document.createElement('div'); s.className='q-hint'; s.textContent = `in ${q.suffix}`;
+      body.appendChild(s);
+    }
+    setTimeout(()=> field.focus(), 50);
+  }
+
+  wrap.appendChild(body);
+
+  const nav = document.createElement('div');
+  nav.className='nav-row';
+  const backBtn = document.createElement('button');
+  backBtn.className='btn btn-ghost'; backBtn.textContent='← Back';
+  backBtn.onclick = ()=> go(-1);
+  const nextBtn = document.createElement('button');
+  nextBtn.className='btn btn-primary'; nextBtn.id='nextBtn';
+  nextBtn.textContent = (q.type==='single') ? 'Skip' : 'Next →';
+  nextBtn.onclick = ()=> go(1);
+  nav.appendChild(current>0 ? backBtn : document.createElement('span'));
+  nav.appendChild(nextBtn);
+  wrap.appendChild(nav);
+
+  return wrap;
+}
+
+function handleOption(q, opt, isMulti, isOther, isRank){
+  if (isMulti){
+    const arr = answers[q.id] ? [...answers[q.id]] : [];
+    const idx = arr.indexOf(opt);
+    if (idx>-1){ arr.splice(idx,1); }
+    else{
+      if (q.maxSelect && arr.length>=q.maxSelect) arr.shift();
+      arr.push(opt);
+    }
+    answers[q.id]=arr;
+    render();
+  } else {
+    answers[q.id]=opt;
+    render();
+    if (!isOther) setTimeout(()=> go(1), 300);
+  }
+}
+
+function updateNextState(){
+  const btn = document.getElementById('nextBtn');
+  if (!btn) return;
+  const q = QUESTIONS[current];
+  const val = answers[q.id];
+  btn.textContent = (val && String(val).trim().length) ? 'Next →' : (q.type==='longtext'?'Skip':'Next →');
+}
+
+function isSkipped(step){
+  return typeof step.skipIf === 'function' && step.skipIf(answers);
+}
+
+function go(dir){
+  let next = current + dir;
+  while (next >= 0 && next < QUESTIONS.length && isSkipped(QUESTIONS[next])){
+    next += dir;
+  }
+  if (next < 0) next = 0;
+  if (next >= QUESTIONS.length) next = QUESTIONS.length - 1;
+  current = next;
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============================================================
+   EDIT ME: after you set up the Google Sheet + Apps Script
+   (see the setup guide), paste your two URLs here.
+
+   APPS_SCRIPT_URL  – the "Web app URL" Apps Script gives you
+                       after deploying. This is what receives
+                       and saves every submission. Safe to be
+                       public — it can only ADD rows, never read.
+
+   ADMIN_SHEET_URL   – the normal share link of your Google
+                        Sheet (File > Share, "Only me" access).
+                        This is what the creator link opens.
+                        Keep this private — anyone with it can
+                        view responses, so only share it with
+                        yourself / your team.
+   ============================================================ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq0oH7QcCscL1DSJcUo1v6SIBHrAOSzof4jPAid5Jqd2uak64s06ln8J52nCVmTnRA-Q/exec";
+const ADMIN_SHEET_URL = "https://docs.google.com/spreadsheets/d/1OR7RLjuZYijS2lo3Uva0sXxoqcwMn_1pB9kQM7_kPBc/edit?gid=0#gid=0";
+
+const STORAGE_KEY = 'snack_survey_responses'; // used only for the in-chat Claude preview
+
+async function submitResponse(){
+  const record = { ts: new Date().toISOString(), ...flattenAnswers() };
+
+  // Live deployment: send to your private Google Sheet via Apps Script.
+  if (APPS_SCRIPT_URL){
+    try{
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Apps Script doesn't return CORS headers; we don't need to read the response
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(record)
+      });
+    }catch(e){
+      console.error('Could not save response to Google Sheets', e);
+    }
+  }
+
+  // Claude-preview fallback: lets you demo the admin table right here in chat
+  // before you've deployed anywhere. Harmless once APPS_SCRIPT_URL is set.
+  if (window.storage){
+    try{
+      let list = [];
+      try{
+        const res = await window.storage.get(STORAGE_KEY, true);
+        if (res && res.value) list = JSON.parse(res.value);
+      }catch(e){ list = []; }
+      list.push(record);
+      await window.storage.set(STORAGE_KEY, JSON.stringify(list), true);
+    }catch(e){ /* not running inside Claude — ignore */ }
+  }
+}
+
+function flattenAnswers(){
+  const out = {};
+  questionSteps.forEach(q=>{
+    let v = answers[q.id];
+    if (v === undefined) { out[q.id] = ''; return; }
+    if (Array.isArray(v)){
+      v = v.map(x => x==='__OTHER__' ? (otherAnswers[q.id]||'Other') : x);
+      out[q.id] = q.type === 'rank' ? v.map((x,i)=>`${i+1}) ${x}`).join('; ') : v.join('; ');
+    } else if (v === '__OTHER__'){
+      out[q.id] = otherAnswers[q.id] || 'Other';
+    } else {
+      out[q.id] = v;
+    }
+  });
+  return out;
+}
+
+adminLink.onclick = ()=>{
+  // Once deployed with ADMIN_SHEET_URL set, just open the private sheet —
+  // that's where real responses live, and only people you've shared it
+  // with can see it.
+  if (ADMIN_SHEET_URL){
+    window.open(ADMIN_SHEET_URL, '_blank');
+    return;
+  }
+  // No sheet configured yet (e.g. previewing in Claude) — fall back to
+  // the local in-chat table so you can still see how it'll look.
+  renderAdmin();
+};
+
+async function renderAdmin(){
+  inAdmin = true;
+  progressWrap.classList.remove('show');
+  stage.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'admin-panel card active';
+  card.innerHTML = `<h2 style="font-size:22px">📊 Responses (Claude preview)</h2><p style="color:var(--ink-soft); font-size:13px">Once you deploy with ADMIN_SHEET_URL set, this button opens your private Google Sheet instead.</p><div id="adminBody">Loading…</div>`;
+  stage.appendChild(card);
+
+  let list = [];
+  try{
+    const res = await window.storage.get(STORAGE_KEY, true);
+    if (res && res.value) list = JSON.parse(res.value);
+  }catch(e){ list = []; }
+
+  const body = document.getElementById('adminBody');
+  if (!list.length){
+    body.innerHTML = `<p style="color:var(--ink-soft)">No responses yet. Share the survey link to start collecting answers — they'll show up here.</p>
+      <div class="admin-actions"><button class="btn btn-ghost" id="backFromAdmin">← Back to survey</button></div>`;
+  } else {
+    const cols = ['ts', ...questionSteps.map(q=>q.id)];
+    const rows = list.map(r => `<tr>${cols.map(c=>`<td>${(r[c]??'').toString().slice(0,60)}</td>`).join('')}</tr>`).join('');
+    body.innerHTML = `
+      <div class="stat-row"><div class="stat-pill"><b>${list.length}</b>responses collected</div></div>
+      <div style="overflow:auto; max-height:320px; margin-top:12px;">
+        <table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-primary" id="downloadCsv">Download CSV</button>
+        <button class="btn btn-ghost" id="backFromAdmin">← Back to survey</button>
+      </div>`;
+    document.getElementById('downloadCsv').onclick = ()=> downloadCsv(cols, list);
+  }
+  document.getElementById('backFromAdmin').onclick = ()=>{ inAdmin=false; render(); };
+}
+
+function downloadCsv(cols, list){
+  const esc = (v)=> `"${String(v??'').replace(/"/g,'""')}"`;
+  const lines = [cols.join(','), ...list.map(r => cols.map(c=>esc(r[c])).join(','))];
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'snack_survey_responses.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------------- confetti ---------------- */
+function burstConfetti(){
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const colors = ['#FF6B35','#FFC94A','#5B8C5A','#E8465F'];
+  const pieces = Array.from({length:120}, ()=>({
+    x: canvas.width/2, y: canvas.height/3,
+    vx: (Math.random()-0.5)*14, vy: (Math.random()-1.2)*14,
+    size: 4+Math.random()*6, color: colors[Math.floor(Math.random()*colors.length)],
+    rot: Math.random()*Math.PI, vr:(Math.random()-0.5)*0.3
+  }));
+  let frame=0;
+  function tick(){
+    frame++;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      p.vy += 0.35; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+      ctx.restore();
+    });
+    if (frame<130) requestAnimationFrame(tick); else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  tick();
+}
+
+render();
+</script>
+</body>
+</html>
