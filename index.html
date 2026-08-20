@@ -406,6 +406,22 @@ const QUESTIONS = [
       "I pay close attention to the ingredients"
     ] },
 
+  { id:"texture_pref", type:"single", emoji:"🥨", title:"Which texture do you enjoy most in a snack?",
+    options:["Crispy","Crunchy","Airy / light","Chewy","Dense / hearty","I like a mix of textures"], other:true },
+
+  { id:"flavor_profile", type:"single", emoji:"🌶️", title:"Which flavor profile do you usually go for?",
+    options:["Savory / salty","Spicy","Sweet","Sour / tangy","Umami / rich","Depends on my mood"], other:true },
+
+  { id:"pack_format", type:"single", emoji:"📦", title:"When you buy a snack, which pack size do you prefer?",
+    options:["Small single-serve, one sitting","Regular individual pack","Large pack to share","Resealable pack for multiple sittings"] },
+
+  { id:"dietary_needs", type:"multi", emoji:"🕌", title:"Do any of these matter to you when choosing a snack?",
+    sub:"Pick everything that applies.",
+    options:["Halal certification","Vegetarian","I avoid a specific allergen (nuts, dairy, gluten, etc.)","No dietary restrictions"], other:true },
+
+  { id:"wish_snack", type:"longtext", emoji:"💭", title:"Is there a snack you wish existed but can't find?",
+    placeholder:"Anything goes — flavor, texture, format, whatever you're craving..." },
+
   { id:"_s2", type:"section", section:"Section 2 of 3", title:"Healthier Snack Discovery 🌿",
     sub:"Let's find out what \"healthier\" really means to you." },
 
