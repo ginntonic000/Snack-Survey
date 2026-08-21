@@ -541,8 +541,15 @@ function buildCardContent(q){
       <div class="section-num">${q.section}</div>
       <h2 class="intro-title" style="font-size:28px">${q.title}</h2>
       <p class="intro-sub">${q.sub||''}</p>
-      <button class="btn btn-primary" id="secBtn">Continue →</button>`;
-    setTimeout(()=> document.getElementById('secBtn').onclick = ()=> go(1), 0);
+      <div class="nav-row" style="justify-content:center; gap:14px;">
+        ${current>0 ? '<button class="btn btn-ghost" id="secBackBtn">← Back</button>' : ''}
+        <button class="btn btn-primary" id="secBtn">Continue →</button>
+      </div>`;
+    setTimeout(()=>{
+      document.getElementById('secBtn').onclick = ()=> go(1);
+      const back = document.getElementById('secBackBtn');
+      if (back) back.onclick = ()=> go(-1);
+    }, 0);
     return wrap;
   }
 
@@ -603,7 +610,7 @@ function buildCardContent(q){
       const inp = document.createElement('input');
       inp.type='text'; inp.className='other-input'; inp.placeholder='Type your answer...';
       inp.value = otherAnswers[q.id] || '';
-      inp.oninput = (e)=> otherAnswers[q.id] = e.target.value;
+      inp.oninput = (e)=>{ otherAnswers[q.id] = e.target.value; updateNextState(); };
       body.appendChild(inp);
     }
     if (isRank){
@@ -666,13 +673,35 @@ function buildCardContent(q){
   backBtn.onclick = ()=> go(-1);
   const nextBtn = document.createElement('button');
   nextBtn.className='btn btn-primary'; nextBtn.id='nextBtn';
-  nextBtn.textContent = (q.type==='single') ? 'Skip' : 'Next →';
+  nextBtn.textContent = 'Next →';
+  nextBtn.disabled = !isAnswered(q);
   nextBtn.onclick = ()=> go(1);
   nav.appendChild(current>0 ? backBtn : document.createElement('span'));
   nav.appendChild(nextBtn);
   wrap.appendChild(nav);
 
   return wrap;
+}
+
+function isAnswered(q){
+  const v = answers[q.id];
+  if (q.type === 'single'){
+    if (v === undefined) return false;
+    if (v === '__OTHER__') return !!(otherAnswers[q.id] && otherAnswers[q.id].trim());
+    return true;
+  }
+  if (q.type === 'multi' || q.type === 'rank'){
+    if (!Array.isArray(v) || v.length === 0) return false;
+    if (v.includes('__OTHER__')) return !!(otherAnswers[q.id] && otherAnswers[q.id].trim());
+    return true;
+  }
+  if (q.type === 'scale'){
+    return v !== undefined;
+  }
+  if (['text','email','number','longtext'].includes(q.type)){
+    return !!(v && String(v).trim().length);
+  }
+  return true;
 }
 
 function handleOption(q, opt, isMulti, isOther, isRank){
@@ -697,8 +726,7 @@ function updateNextState(){
   const btn = document.getElementById('nextBtn');
   if (!btn) return;
   const q = QUESTIONS[current];
-  const val = answers[q.id];
-  btn.textContent = (val && String(val).trim().length) ? 'Next →' : (q.type==='longtext'?'Skip':'Next →');
+  btn.disabled = !isAnswered(q);
 }
 
 function isSkipped(step){
