@@ -783,6 +783,7 @@ async function submitResponse(){
       await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors', // Apps Script doesn't return CORS headers; we don't need to read the response
+        keepalive: true, // let the browser finish sending this even if the page reloads/closes right after
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(record)
       });
