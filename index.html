@@ -562,7 +562,7 @@ function buildCardContent(q){
       ${persona ? `<div class="persona-card"><div class="persona-name">${persona.name}</div><div>${persona.blurb}</div></div>` : ''}
       <button class="btn btn-primary" id="doneBtn">Done</button>`;
     setTimeout(()=>{
-      document.getElementById('doneBtn').onclick = ()=> { window.location.reload(); };
+      document.getElementById('doneBtn').onclick = ()=> { if (navLocked) return; window.location.reload(); };
       submitResponse();
       burstConfetti();
     }, 0);
@@ -733,7 +733,15 @@ function isSkipped(step){
   return typeof step.skipIf === 'function' && step.skipIf(answers);
 }
 
+let navLocked = false;
+let navLockTimer = null;
+
 function go(dir){
+  if (navLocked) return;
+  navLocked = true;
+  clearTimeout(navLockTimer);
+  navLockTimer = setTimeout(()=> navLocked = false, 500);
+
   let next = current + dir;
   while (next >= 0 && next < QUESTIONS.length && isSkipped(QUESTIONS[next])){
     next += dir;
